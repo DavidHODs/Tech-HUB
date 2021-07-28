@@ -1,0 +1,218 @@
+{% extends 'landing/base.html' %} {% load crispy_forms_tags %}
+
+<!-- content -->
+
+
+{% block content %}
+
+<div class="container">
+  <div class="row mt-5">
+    <div class="col-md-5 col-sm-6">
+      <a href="{% url 'social:post-list' %}" class="btn btn-dark"
+        >Back to Feed</a
+      >
+    </div>
+  </div>
+  <div class="row justify-content-center mt-3">
+    <div class="col-md-5 col-sm-12 border-bottom">
+      <div>
+        <a href="{% url 'social:profile' post.author.profile.pk %}">
+          <img
+            src="{{ post.author.profile.picture.url }}"
+            alt=""
+            class="rounded-circle post-img"
+            height="30"
+            width="30"
+        /></a>
+        <p class="post-text">
+          <a
+            class="post-link"
+            class="text-primary"
+            href="{% url 'social:profile' post.author.profile.pk %}"
+            >@{{ post.author }}</a
+          >
+          {{ post.created_on }}
+        </p>
+      </div>
+    {% if request.user == post.author %}
+    <a href="{% url 'social:post-edit' post.pk %}" class="edit-color"><i class="far fa-edit"></i></a>
+    <a href="{% url 'social:post-delete' post.pk %}" class="edit-color"><i class="fas fa-trash"></i></a>
+    {% endif %}
+    {% if post.image.count > 0 %}
+        <div class="row">
+          {% for img in post.image.all %}
+          <div class="col-md-6 cl-xs-12">
+            <img
+              src="{{ img.image.url }}"
+              alt="post-images"
+              class="post-image"
+            />
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      <div class="body">
+          <p>{{ post.body }}</p>
+        </div>
+      <div class="d-flex flex-row">
+        <form action="{% url 'social:like' post.pk %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <button
+            type="submit"
+            class="remove-default-btn"
+          >
+            <i class="far fa-thumbs-up"
+              ><span> {{ post.likes.all.count }} </span></i
+            >
+          </button>
+        </form>
+
+        <form action="{% url 'social:dislike' post.pk %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <button
+            type="submit"
+            class="remove-default-btn"
+          >
+            <i class="far fa-thumbs-down"
+              ><span> {{ post.dislikes.all.count }} </span></i
+            >
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center mt-3 mb-5">
+    <div class="col-md-5 col-sm-12">
+      <form method="POST">
+        {% csrf_token %} {{ form | crispy }}
+        <div class="d-grid gap-2">
+          <button class="btn btn-success mt-3" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% for comment in comments %}
+  {% if comment.is_parent %}
+    
+  
+  <div class="row justify-content-center mt-3 mb-5">
+    <div class="col-md-5 col-sm-12 border-bottom">
+        <p>
+          <div>
+        <a href="{% url 'social:profile' comment.author.profile.pk %}">
+          <img
+            src="{{ comment.author.profile.picture.url }}"
+            alt=""
+            class="rounded-circle post-img"
+            height="30"
+            width="30"
+        /></a>
+        <p class="post-text">
+          <a
+            class="post-link"
+            class="text-primary"
+            href="{% url 'social:profile' comment.author.profile.pk %}"
+            >@{{ comment.author }}</a
+          >
+          {{ comment.created_on }}
+        </p>
+      </div>
+        {% if request.user == comment.author %}
+    <a href="{% url 'social:comment-delete' post.pk comment.pk %}" class="edit-color"><i class="fas fa-trash"></i></a>
+    {% endif %}
+        </p>
+        <p>{{ comment.comment }}</p>
+        <div class="d-flex flex-row">
+        <form action="{% url 'social:comment-like' post.pk comment.pk %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <button
+            type="submit"
+            class="remove-default-btn"
+          >
+            <i class="far fa-thumbs-up"
+              ><span> {{ comment.likes.all.count }} </span></i
+            >
+          </button>
+        </form>
+
+        <form action="{% url 'social:comment-dislike' post.pk comment.pk %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}" />
+          <button
+            type="submit"
+            class="remove-default-btn"
+          >
+            <i class="far fa-thumbs-down"
+              ><span> {{ comment.dislikes.all.count }} </span></i
+            >
+          </button>
+        </form>
+        <div>
+          <button type="submit" class="remove-default-btn">
+            <i class="far fa-comment-dots" onclick="commentReplyToggle('{{ comment.pk }}')"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+        </div>
+        <div class="row justify-content-center mt-3 mb-5 d-none" id="{{ comment.pk }}">
+    <div class="col-md-5 col-sm-12">
+      <form method="POST" action="{% url 'social:comment-reply' post.pk comment.pk %}">
+        {% csrf_token %} {{ form | crispy }}
+        <div class="d-grid gap-2">
+          <button class="btn btn-success mt-3" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
+  
+
+   
+  </div>
+  {% for child_comment in comment.children %}
+    <div class="child-comment">
+      <div class="col-md-5 col-sm-12 border-bottom">
+         <p>
+          <div>
+        <a href="{% url 'social:profile' child_comment.author.profile.pk %}">
+          <img
+            src="{{ child_comment.author.profile.picture.url }}"
+            alt=""
+            class="rounded-circle post-img"
+            height="30"
+            width="30"
+        /></a>
+        <p class="post-text">
+          <a
+            class="post-link"
+            class="text-primary"
+            href="{% url 'social:profile' child_comment.author.profile.pk %}"
+            >@{{ child_comment.author }}</a
+          >
+          {{ child_comment.created_on }}
+        </p>
+      </div>
+        {% if request.user == child_comment.author %}
+    <a href="{% url 'social:comment-delete' post.pk child_comment.pk %}" class="edit-color"><i class="fas fa-trash"></i></a>
+    {% endif %}
+        </p>
+        <p>
+          {{ child_comment.comment }}
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+
+    {% endif %}
+    {% endfor %}
+</div>
+
+
+
+ {% endblock content %}

@@ -1,0 +1,41 @@
+{% extends "landing/base.html" %} {% block content %}
+<div class="container">
+  <div class="row-mt-5">
+    <div class="col-md-5 col-sm-6">
+      <a href="{% url 'social:post-list' %}" class="btn btn-dark"
+        >Back to Feed</a
+      >
+    </div>
+  </div>
+
+  {% for profile in profile_list %}
+  <div class="row-justify-content-center mt-3">
+    <div class="col-md-5 col-sm-12 border-bottom position-relative">
+      <div>
+        <a href="{% url 'social:profile' profile.pk %}">
+          <img
+            src="{{profile.picture.url }}"
+            alt=""
+            class="rounded-circle post-img"
+            height="30"
+            width="30"
+        /></a>
+        <p class="post-text">
+          <a
+            class="post-link"
+            class="text-primary"
+            href="{% url 'social:profile' profile.pk %}"
+            >@{{ profile.user }}</a
+          >
+        </p>
+      </div>
+
+      {% if profile.location %}
+      <p>{{ profile.location }}</p>
+      {% endif %}
+      <p>Followers: {{ profile.followers.all.count }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock content %}
