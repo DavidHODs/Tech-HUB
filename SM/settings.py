@@ -31,7 +31,7 @@ DEBUG = True
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['techie-hub.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
