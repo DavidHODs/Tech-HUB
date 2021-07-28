@@ -1,1 +1,1 @@
-web: gunicorn techie-hub.wsgi
+web:gunicorn SM.wsgi:application --log-file -
